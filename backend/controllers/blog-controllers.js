@@ -221,6 +221,13 @@ const doDeletePost = async (req, res) => {
   res.json(post);
 };
 
+// accessing all saved post of a user
+const doAllSavedPost = async (req, res) => {
+  const Posts = await Post.find().populate("authorId").sort({ createdAt: -1 });
+
+  res.json(Posts);
+};
+
 module.exports = {
   doCreatePost,
   doUpdatePost,
@@ -231,4 +238,5 @@ module.exports = {
   doPopularPost,
   doLikePost,
   doSavePost,
+  doAllSavedPost,
 };
