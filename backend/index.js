@@ -9,6 +9,7 @@ const connectDB = require('./db/connect');
 const authroute = require('./routes/auth');
 const blogroute = require('./routes/blog');
 const commentroute = require('./routes/comments');
+const notificationroute = require('./routes/notification');
 
 // middleware
 app.use(cors());
@@ -25,6 +26,9 @@ app.use('/api/v1/blog', blogroute);
 
 //comment route
 app.use('/api/v1/comments', commentroute);
+
+//notification route
+app.use('/api/v1/notification', notificationroute);
 
 // connecting with database
 const connect = async ()=>
