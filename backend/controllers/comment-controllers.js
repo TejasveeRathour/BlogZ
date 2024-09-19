@@ -25,6 +25,28 @@ const doAddComment = async (req, res) => {
   res.json(newcomment);
 };
 
+// updating a comment
+const doEditComment = async (req, res) => {
+  const { id } = req.params;
+  const { message } = req.body;
+
+  const filter = { _id: id };
+  const upd = {
+    content: message,
+  };
+  const updatedComment = await Comment.findOneAndUpdate(filter, upd, {
+    new: true,
+  });
+  res.json(updatedComment);
+};
+
+// deleting a comment
+const doDeleteComment = async (req, res) => {
+  const { id } = req.params;
+  let deletedcomment = await Comment.findByIdAndDelete(id);
+  res.json(deletedcomment);
+};
+
 // accessing all comments
 const doGetComments = async (req, res) => {
   const { id } = req.params;
@@ -38,4 +60,4 @@ const doGetComments = async (req, res) => {
 
   res.json(comments);
 };
-module.exports = { doAddComment, doGetComments };
+module.exports = { doAddComment, doGetComments, doDeleteComment, doEditComment};
