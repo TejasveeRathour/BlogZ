@@ -1,4 +1,5 @@
 const Post = require("../models/Post");
+const User = require("../models/User");
 const fs = require("fs");
 
 // create a Blog
@@ -73,8 +74,25 @@ const doAccessAllPosts = async (req, res) => {
 const doSinglePost = async (req, res) => {
   const { id } = req.params;
   let singlePost = await Post.findById(id).populate("authorId");
-  // console.log(singlePost);
   res.json(singlePost);
+};
+
+// accessing all blogs of a user
+const doAllPostUser = async (req, res) => {
+  const { id } = req.params;
+  const perPage = 3;
+  const page = req.query.page || 1;
+  const lastItemTimestamp = req.query.lastItemTimestamp || Date.now();
+
+  const Posts = await Post.find({
+    authorId: id,
+    createdAt: { $lt: lastItemTimestamp },
+  })
+    .populate("authorId")
+    .sort({ likes: "desc", createdAt: -1 })
+    .skip(perPage * page - perPage)
+    .limit(perPage);
+  res.json(Posts);
 };
 
 // delete a blog
@@ -95,4 +113,11 @@ const doDeletePost = async (req, res) => {
   res.json(post);
 };
 
-module.exports = { doCreatePost, doUpdatePost, doAccessAllPosts, doSinglePost, doDeletePost };
+module.exports = {
+  doCreatePost,
+  doUpdatePost,
+  doAccessAllPosts,
+  doSinglePost,
+  doDeletePost,
+  doAllPostUser,
+};
