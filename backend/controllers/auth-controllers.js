@@ -74,4 +74,30 @@ const doProfile = async (req, res) => {
   res.json(singleUser);
 };
 
+// update password
+const doUpdatePass = async (req, res) => {
+  const { id } = req.params;
+  const { oldpassword, password } = req.body;
+
+  // checking user existence
+  let user = await User.findById(id);
+
+  // decrypting the password
+  const passwordCompare = await bcrypt.compare(oldpassword, user.password);
+  if (!passwordCompare) {
+    return res.status(400).json({ msg: "Old password is wrong" });
+  }
+
+  // encrypting the new password
+  const salt = await bcrypt.genSalt(10);
+  const secPass = await bcrypt.hash(password, salt);
+
+  const filter = { _id: id };
+  const upd = {
+    password: secPass,
+  };
+  const userdata = await User.findOneAndUpdate(filter, upd, { new: true });
+  res.json({ msg: "Password Updated", userdata });
+};
+
 module.exports = { doRegister, doLogin };
