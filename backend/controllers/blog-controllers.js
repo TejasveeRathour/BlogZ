@@ -69,4 +69,30 @@ const doAccessAllPosts = async (req, res) => {
   res.json(allposts);
 };
 
-module.exports = { doCreatePost, doUpdatePost, doAccessAllPosts };
+// accessing a single Blog
+const doSinglePost = async (req, res) => {
+  const { id } = req.params;
+  let singlePost = await Post.findById(id).populate("authorId");
+  // console.log(singlePost);
+  res.json(singlePost);
+};
+
+// delete a blog
+const doDeletePost = async (req, res) => {
+  const { id } = req.params;
+  let post = await Post.findByIdAndDelete(id);
+  let creator = post.authorId;
+
+  let user = await User.findById(creator);
+
+  // updating total likes of a user on post deletion
+  await User.updateMany(
+    { _id: creator },
+    {
+      $set: { likes: user.likes - post.likes },
+    }
+  );
+  res.json(post);
+};
+
+module.exports = { doCreatePost, doUpdatePost, doAccessAllPosts, doSinglePost, doDeletePost };
