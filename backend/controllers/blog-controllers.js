@@ -1,5 +1,6 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
+const Notification = require("../models/Notification");
 const fs = require("fs");
 
 // create a Blog
@@ -111,6 +112,97 @@ const doAllPostUser = async (req, res) => {
   res.json(Posts);
 };
 
+// like a post
+const doLikePost = async (req, res) => {
+  const { postId, userId } = req.body;
+  let post1 = await Post.findById(postId).populate("authorId");
+  let creator = post1.authorId._id;
+  let creator_likes = post1.authorId.likes;
+
+  // post details
+  let likeduser = post1.likeduser;
+  let likes = post1.likes;
+
+  let result;
+  // if post has been liked by user then dislike
+  if (likeduser.includes(userId)) {
+    result = await Post.updateMany(
+      { _id: postId },
+      {
+        $pull: { likeduser: { $in: [userId] } },
+        $set: { likes: likes - 1 },
+      }
+    );
+    await User.updateMany(
+      { _id: creator },
+      {
+        $set: { likes: creator_likes - 1 },
+      }
+    );
+  }
+  // if post has not been liked by user then like it
+  else {
+    result = await Post.updateMany(
+      { _id: postId },
+      {
+        $push: { likeduser: userId },
+        $set: { likes: likes + 1 },
+      }
+    );
+    await User.updateMany(
+      { _id: creator },
+      {
+        $set: { likes: creator_likes + 1 },
+      }
+    );
+    // checking if notification is already send
+    const allnotifications = await Notification.find({
+      userId,
+      postId,
+      notification_type: "like",
+    });
+
+    if (allnotifications.length == 0) {
+      //sending notification
+      const newNotification = await Notification.create({
+        notification_type: "like",
+        message: "",
+        userId,
+        postId,
+        authorId: post1.authorId._id,
+      });
+    }
+  }
+  let post = await Post.findById(postId);
+  res.json({ result, likeduser, likes, post });
+};
+
+// save a Post
+const doSavePost = async (req, res) => {
+  const { postId, userId } = req.body;
+  let post1 = await Post.findById(postId);
+  let savedPost = post1.savedPost;
+
+  let result;
+  if (savedPost.includes(userId)) {
+    result = await Post.updateMany(
+      { _id: postId },
+      {
+        $pull: { savedPost: { $in: [userId] } },
+      }
+    );
+  } else {
+    result = await Post.updateMany(
+      { _id: postId },
+      {
+        $push: { savedPost: userId },
+      }
+    );
+  }
+  let post = await Post.findById(postId);
+  res.json({ result, savedPost, post });
+};
+
 // delete a blog
 const doDeletePost = async (req, res) => {
   const { id } = req.params;
@@ -137,4 +229,6 @@ module.exports = {
   doDeletePost,
   doAllPostUser,
   doPopularPost,
+  doLikePost,
+  doSavePost,
 };

@@ -12,7 +12,9 @@ const {doCreatePost,
        doDeletePost, 
        doSinglePost, 
        doAllPostUser,
-       doPopularPost} = require('../controllers/blog-controllers');
+       doPopularPost,
+       doLikePost,
+       doSavePost} = require('../controllers/blog-controllers');
 
 // add post
 router.route('/post').post(verifyToken ,uploadMiddleware.single('file'),validateCreatePost, doCreatePost);
@@ -32,5 +34,11 @@ router.route('/popularpost').get(doPopularPost);
 
 // update a post 
 router.route('/updatepost').put(verifyToken, uploadMiddleware.single('file'),validateEditPost, doUpdatePost);
+
+// like a post
+router.route('/likepost').put(verifyToken ,doLikePost);
+
+// save a Post
+router.route('/savePost').put(verifyToken ,doSavePost);
 
 module.exports = router;
