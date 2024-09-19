@@ -74,6 +74,32 @@ const doProfile = async (req, res) => {
   res.json(singleUser);
 };
 
+// update user profile
+const doUpdate = async (req, res) => {
+  const { id } = req.params;
+
+  let newPath1;
+  if (req.file) {
+    const { originalname, path } = req.file;
+    const parts = originalname.split(".");
+    const ext = parts[parts.length - 1];
+    newPath1 = path + "." + ext;
+    fs.renameSync(path, newPath1);
+  }
+
+  const filter = { _id: id };
+  const { name } = req.body;
+
+  const upd = {
+    name,
+  };
+  if (newPath1) {
+    upd.photo = newPath1;
+  }
+  const userdata = await User.findOneAndUpdate(filter, upd, { new: true });
+  res.json({ msg: "Profile Updated", userdata });
+};
+
 // update password
 const doUpdatePass = async (req, res) => {
   const { id } = req.params;
@@ -100,4 +126,4 @@ const doUpdatePass = async (req, res) => {
   res.json({ msg: "Password Updated", userdata });
 };
 
-module.exports = { doRegister, doLogin };
+module.exports = { doRegister, doLogin, doProfile, doUpdate, doUpdatePass };
