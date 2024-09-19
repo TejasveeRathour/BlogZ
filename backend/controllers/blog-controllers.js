@@ -70,6 +70,22 @@ const doAccessAllPosts = async (req, res) => {
   res.json(allposts);
 };
 
+const doPopularPost = async (req, res) => {
+  const perPage = 3;
+  const page = req.query.page || 1;
+  const lastItemTimestamp = req.query.lastItemTimestamp || Date.now();
+
+  const allposts = await Post.find({
+    createdAt: { $lt: lastItemTimestamp },
+  })
+    .populate("authorId")
+    .sort({ likes: "desc", createdAt: -1 })
+    .skip(perPage * page - perPage)
+    .limit(perPage);
+
+  res.json(allposts);
+};
+
 // accessing a single Blog
 const doSinglePost = async (req, res) => {
   const { id } = req.params;
@@ -120,4 +136,5 @@ module.exports = {
   doSinglePost,
   doDeletePost,
   doAllPostUser,
+  doPopularPost,
 };

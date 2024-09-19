@@ -11,7 +11,8 @@ const {doCreatePost,
        doUpdatePost, 
        doDeletePost, 
        doSinglePost, 
-       doAllPostUser} = require('../controllers/blog-controllers');
+       doAllPostUser,
+       doPopularPost} = require('../controllers/blog-controllers');
 
 // add post
 router.route('/post').post(verifyToken ,uploadMiddleware.single('file'),validateCreatePost, doCreatePost);
@@ -25,6 +26,9 @@ router.route('/post/:id').get(doSinglePost).delete(verifyToken, doDeletePost);
 
 // access allpost of a user with given user id
 router.route('/allposts/:id').get(verifyToken ,doAllPostUser);
+
+// popular post
+router.route('/popularpost').get(doPopularPost);
 
 // update a post 
 router.route('/updatepost').put(verifyToken, uploadMiddleware.single('file'),validateEditPost, doUpdatePost);
