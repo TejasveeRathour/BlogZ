@@ -28,4 +28,34 @@ const doCreatePost = async (req,res)=>
     res.json(postDoc);
 }
 
-module.exports = {doCreatePost};
+// updating a blog
+const doUpdatePost = async(req,res)=>
+    {
+        let newPath = null;
+        if (req.file) 
+        {
+            const {originalname,path} = req.file;
+            const parts = originalname.split('.');
+            const ext = parts[parts.length - 1];
+            newPath = path+'.'+ext;
+            fs.renameSync(path, newPath);
+        }
+        const {title, summary,content, id } = req.body;
+        
+        // Updating the Post
+        const filter = {_id : id};
+        const upd = 
+        {
+            title,
+            summary,
+            content,
+        }
+        if(newPath)
+        {
+            upd.cover = newPath
+        }
+        const postData = await Post.findOneAndUpdate(filter,upd, {new:true})
+        res.json(postData);
+    }
+
+module.exports = {doCreatePost, doUpdatePost};
