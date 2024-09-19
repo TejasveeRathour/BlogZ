@@ -7,6 +7,7 @@ const app = express();
 const cors = require('cors');
 const connectDB = require('./db/connect');
 const authroute = require('./routes/auth');
+const blogroute = require('./routes/blog');
 
 // middleware
 app.use(cors());
@@ -17,6 +18,9 @@ app.use('/uploads',express.static(__dirname +'/uploads'));
 
 // user route - login, register
 app.use('/api/v1/auth', authroute);
+
+// Blogs route
+app.use('/api/v1/blog', blogroute);
 
 // connecting with database
 const connect = async ()=>
